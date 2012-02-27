@@ -1,0 +1,30 @@
+@charset="UTF-8";
+
+@font-face {
+	font-family: "DIGITAL";
+	src: url("./digital7mono.ttf");
+}
+#year,#yearBG,.digital,.digitalBG {
+	font-family: "DIGITAL";
+	color: white;
+	font-size: 10px;
+}
+#yearBG,.digitalBG{
+	fill:#600;
+}
+#year,.digital{
+	fill:#f00;
+	-filter:url(#blurFilter);
+}
+.digital.glow{
+	fill:#fc0;
+	filter:url(#blurFilter);
+}
+
+.label{
+	font-family: "Courier New","Courier",monospace;
+	font-size: 4.5px;
+}
+.clock.label{
+	text-anchor: middle;
+}

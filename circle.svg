@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<?xml-stylesheet type="text/css" href="./circle.css" ?>    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 100 110" preserveAspectRatio="xMidYMid">
+  <defs>
+    <filter
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       color-interpolation-filters="sRGB"
+       id="blurFilter">
+      <feGaussianBlur stdDeviation="0.3" />
+    </filter>
+  </defs>
+  <circle cx="50" cy="50" r="49" stroke="black" stroke-width="1" fill="white"/>
+  <g id="week"/>
+  <path id="weekPointer" stroke-width="1" stroke="blue" d="M0 0 L0 -48 Z" transform ="translate(50 50), rotate(0 0 0)" />
+  <circle cx="50" cy="50" r="40" stroke="black" stroke-width="0.5" fill="white"/>
+  <g id="hours"/>
+  <path id="hourPointer" stroke-width="1" stroke="black" d="M0 0 L0 -30 Z" transform ="translate(50 50), rotate(10 0 0)" />
+  <path id="minutePointer" stroke-width="1" stroke="black" d="M0 0 L0 -37 Z" transform ="translate(50 50), rotate(20 0 0)" />
+  <path id="secondPointer" stroke-width="0.5" stroke="red" d="M0 0 L0 -40 Z" transform ="translate(50 50), rotate(30 0 0)" />
+  <g transform="translate(2 100)">
+  
+  <text class="label" transform="translate(4.5 8.5), rotate(-90 0 0)">ANO</text>
+  <g transform="translate(5 0)">
+	  <rect width="20" height="8.5" style="fill:black"/>
+	  <g transform="translate(0 7.5), skewX(-10)">
+		  <text class="digitalBG" id="yearBG">8888</text>
+		  <text class="digital" id="year">8888</text>
+		  <text class="digital glow" id="yearGlow">8888</text>
+	  </g>
+  </g>
+ 
+  <text class="label" transform="translate(29.5 8.5), rotate(-90 0 0)">MÊS</text>
+  <g transform="translate(30 0)">
+	  <rect width="11" height="8.5" style="fill:black"/>
+	  <g transform="translate(0 7.5), skewX(-10)">
+		  <text class="digitalBG" id="monthBG">88</text>
+		  <text class="digital" id="month">20</text>
+		  <text class="digital glow" id="monthGlow">88</text>
+	  </g>
+  </g> 
+  
+   <text class="label" transform="translate(45.5 8.5), rotate(-90 0 0)">DIA</text>
+ <g transform="translate(46 0)" >
+	  <rect width="11" height="8.5" style="fill:black"/>
+	  <g transform="translate(0 7.5), skewX(-10)">
+		  <text class="digitalBG" id="dayBG">88</text>
+		  <text class="digital" id="day">20</text>
+		  <text class="digital glow" id="dayGlow">88</text>
+	  </g>
+  </g>
+  
+    <text class="label" transform="translate(65.5 8.5), rotate(-90 0 0)">FUSO</text>
+ <g transform="translate(66 0)" >
+	  <rect width="30" height="8.5" style="fill:black"/>
+	  <g transform="translate(0 7.5), skewX(-10)">
+		  <text class="digitalBG" id="zoneBG">+88:88</text>
+		  <text class="digital" id="zone">+88:88</text>
+		  <text class="digital glow" id="zoneGlow">+88:88</text>
+	  </g>
+  </g>
+  </g>
+
+
+
+  <script type="application/ecmascript" xlink:href="circle.js"></script>
+</svg>
+
