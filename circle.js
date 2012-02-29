@@ -7,7 +7,7 @@ var l;
 var g = document.getElementById('hours');
 var inc = Math.PI / 30;
 var curang = 0;
-var hours = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+var hours = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
 for (var i = 0; i < 60; i++){
 	var p = document.createElementNS(SVGNS,'path');
 	p.setAttribute("stroke","black");
