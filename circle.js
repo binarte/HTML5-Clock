@@ -8,6 +8,7 @@ var g = document.getElementById('hours');
 var inc = Math.PI / 30;
 var curang = 0;
 var hours = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+hours = ['','','','','','','','','','','',''];
 for (var i = 0; i < 60; i++){
 	var p = document.createElementNS(SVGNS,'path');
 	p.setAttribute("stroke","black");
@@ -47,19 +48,27 @@ for (var i = 0; i < 60; i++){
 	curang += inc;
 }	
 
-g = document.getElementById('week');
+//g = document.getElementById('week');
 inc = Math.PI / 7;
 var curang = 0;
 var weekDays = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
+var weekDays = ['','','','','','',''];
+
+var wofs = 20;
+var wpos = 30;
+var wpos2 = wpos - 1;
+var wlen = 25;
+var wdif = 2;
+
 for (var i = 0; i < 14; i++){
 	var p = document.createElementNS(SVGNS,'path');
 	p.setAttribute("stroke","black");
 	p.setAttribute("stroke-width","0.2");
 	if (i % 2){
-		l = 45;
+		l = wlen;
 	}
 	else {
-		l = 47;
+		l = wlen + wdif;
 		var idx = i/2;
 		var t = document.createElementNS(SVGNS,'text');
 		
@@ -81,7 +90,7 @@ for (var i = 0; i < 14; i++){
 		
 		g.appendChild(t);
 	}
-	p.setAttribute("d","M"+(50+Math.sin(curang)*49 )+" "+(50+Math.cos(curang)* 49)+ " L"+(50+Math.sin(curang)*l )+" "+(50+Math.cos(curang)* l)+ " Z");
+	p.setAttribute("d","M"+(wofs+wpos+Math.sin(curang)*wpos2 )+" "+(wofs+wpos+Math.cos(curang)* wpos2)+ " L"+(wofs+wpos+Math.sin(curang)*l )+" "+(wofs+wpos+Math.cos(curang)* l)+ " Z");
 	
 	g.appendChild(p);
 	
@@ -165,7 +174,7 @@ function updateTime(){
 	
 }
 
-setInterval(updateTime,50);
+setInterval(updateTime,1000/120);
 //svg.appendChild(g);
 
 /*
