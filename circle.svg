@@ -14,13 +14,15 @@
   </defs>
   <circle cx="50" cy="50" r="49" stroke="black" stroke-width="1" fill="white"/>
   <g id="week"/>
+  <path id="weekPointer" stroke-width="1" stroke="blue" d="M0 0 L0 -46.5 Z" transform ="translate(50 50), rotate(0 0 0)" />
   
   <circle cx="50" cy="50" r="40" stroke="black" stroke-width="0.5" fill="white"/>
+  <circle cx="50" cy="50" r="20"  fill="#f8f8f8"/>
   <g id="hours"/>
-  <path id="weekPointer" stroke-width="1" stroke="blue" d="M0 0 L0 -27 Z" transform ="translate(50 50), rotate(0 0 0)" />
-<path id="hourPointer" stroke-width="1" stroke="black" d="M0 0 L0 -30 Z" transform ="translate(50 50), rotate(10 0 0)" />
-  <path id="minutePointer" stroke-width="1" stroke="black" d="M0 0 L0 -37 Z" transform ="translate(50 50), rotate(20 0 0)" />
-  <path id="secondPointer" stroke-width="0.5" stroke="red" d="M0 0 L0 -40 Z" transform ="translate(50 50), rotate(30 0 0)" />
+  <path style="stroke: blue; stroke-linecap:round" id="dayPointer" stroke-width="1" d="M0 0 L0 -17.5 Z" transform ="translate(50 50), rotate(0 0 0)" />
+  <path style="stroke-linecap: round" id="hourPointer" stroke-width="0.8" stroke="black" d="M0 0 L0 -30 Z" transform ="translate(50 50), rotate(10 0 0)" />
+  <path style="stroke-linecap: round" id="minutePointer" stroke-width="0.6" stroke="black" d="M0 0 L0 -37 Z" transform ="translate(50 50), rotate(20 0 0)" />
+  <path style="stroke-linecap: round" id="secondPointer" stroke-width="0.4" stroke="red" d="M0 0 L0 -40 Z" transform ="translate(50 50), rotate(30 0 0)" />
   <g transform="translate(2 100)">
   
   <text class="label" transform="translate(4.5 8.5), rotate(-90 0 0)">ANO</text>

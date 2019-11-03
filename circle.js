@@ -2,6 +2,99 @@ var SVGNS = "http://www.w3.org/2000/svg";
 
 var svg = document.getElementsByTagName('svg')[0];
 var l;
+var mlen = [31,28,31,30,31,30,31,31,30,31,30,31];
+var mofs = [0,0,0,0,0,0,0,0,0,0,0,0];
+var isLeap;
+var curDate;
+var curWeek = 0;
+function calcDay(d){
+	var dt = 
+		(d.getFullYear() << 9) |
+		(d.getMonth()    << 5) |
+		(d.getDate()         )
+	;
+	
+	if (dt == curDate) {
+		return;
+	}
+	curDate = dt;
+	var curYear = d.getFullYear();
+	if (curYear % 400 == 0){
+		isLeap = true;
+	} else if (curYear % 100 == 0){
+		isLeap = false;
+	} else if (curYear % 4 == 0) {
+		isLeap = true;
+	} else {
+		isLeap = false;
+	}
+	
+	mlen[1] = isLeap ? 29 : 28;
+	var ofs = -1;
+	var di = new Date();
+	di.setDate(1);
+	di.setMonth(0);
+	while (di.getDay()){
+		di.setDate(di.getDate() - 1);
+		ofs++;
+	}
+	if (ofs >= 3){
+		ofs -= 7;
+	}
+	console.log(ofs);
+	for (var i = 0; i < 12; i++){
+		mofs[i] = ofs;
+		ofs += mlen[i];
+	}
+	curWeek = ((mofs[d.getMonth()] + d.getDate() - d.getDay()) / 7); 
+	console.log(mofs,d,curWeek);
+	
+	yearDisplay.nodeValue=
+		yearDisplay.textContent=
+		yearDisplay.data=	
+		yearDisplayGlow.nodeValue=
+		yearDisplayGlow.textContent=
+		yearDisplayGlow.data=d.getFullYear();
+		
+		val = d.getMonth()+1;
+		if (val < 10) val = String.fromCharCode(0xA0)+val;
+		monthDisplay.nodeValue=
+		monthDisplay.textContent=
+		monthDisplay.data=
+		monthDisplayGlow.nodeValue=
+		monthDisplayGlow.textContent=
+		monthDisplayGlow.data=val;
+		
+		val = d.getDate();
+		if (val < 10) val = String.fromCharCode(0xA0)+val;
+		dayDisplay.nodeValue=
+		dayDisplay.textContent=
+		dayDisplay.data=
+		dayDisplayGlow.nodeValue=
+		dayDisplayGlow.textContent=
+		dayDisplayGlow.data=val;
+		
+		val = d.getTimezoneOffset();
+		if (val >= 0){
+			var sign = '-';
+		}
+		else {
+			val *= -1;
+			var sign = '+';
+		}
+		var min = val % 60;
+		var hour = (val - min)/60;
+		if (min < 10) min = '0' + min;
+		if (hour < 10) hour = '0' + hour;
+		
+		
+		zoneDisplay.nodeValue=
+		zoneDisplay.textContent=
+		zoneDisplay.data=
+		zoneDisplayGlow.nodeValue=
+		zoneDisplayGlow.textContent=
+		zoneDisplayGlow.data= sign + hour + ':' + min;
+}
 
 var g = document.getElementById('hours');
 var inc = Math.PI / 30;
@@ -47,16 +140,16 @@ for (var i = 0; i < 60; i++){
 	curang += inc;
 }	
 
-//g = document.getElementById('week');
+
 inc = Math.PI / 7;
 var curang = 0;
 var weekDays = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
 var weekDays = ['','','','','','',''];
 
-var wofs = 20;
-var wpos = 30;
+var wofs = 29;
+var wpos = 21;
 var wpos2 = wpos - 1;
-var wlen = 25;
+var wlen = 16;
 var wdif = 2;
 
 for (var i = 0; i < 14; i++){
@@ -96,8 +189,35 @@ for (var i = 0; i < 14; i++){
 	curang += inc;
 }	
 
+g = document.getElementById('week');
+inc = Math.PI / 26;
+var curang = Math.PI;
+
+var wofs = 0;
+var wpos = 50;
+var wpos2 = wpos - 1;
+var wlen = 47;
+var wdif = 2;
+for (var i = 0; i < 52; i++){
+	var p = document.createElementNS(SVGNS,'path');
+	p.setAttribute("stroke","black");
+	p.setAttribute("stroke-width","0.2");
+	if (i % 4){
+		l = wlen;
+	}
+	else {
+		l = wlen - wdif;
+	}
+	p.setAttribute("d","M"+(wofs+wpos+Math.sin(curang)*wpos2 )+" "+(wofs+wpos+Math.cos(curang)* wpos2)+ " L"+(wofs+wpos+Math.sin(curang)*l )+" "+(wofs+wpos+Math.cos(curang)* l)+ " Z");
+	
+	g.appendChild(p);
+	
+	curang += inc;
+}	
+
 
 var weekPointer = document.getElementById('weekPointer').transform.baseVal.getItem(1);
+var dayPointer = document.getElementById('dayPointer').transform.baseVal.getItem(1);
 var hourPointer = document.getElementById('hourPointer').transform.baseVal.getItem(1);
 var minutePointer = document.getElementById('minutePointer').transform.baseVal.getItem(1);
 var secondPointer = document.getElementById('secondPointer').transform.baseVal.getItem(1);
@@ -113,9 +233,11 @@ var zoneDisplayGlow = document.getElementById('zoneGlow').firstChild;
 
 
 
-var rotweek = 360 / 7;
+var rotday = 360 / 7;
+var rotweek = 360 / 52;
 function updateTime(){
 	var time = new Date();
+	calcDay(time);
 	var val =  time.getSeconds() + (time.getMilliseconds()/1000);
 	secondPointer.setRotate(6* val ,0,0 ); 
 	val = time.getMinutes() + (val/60);
@@ -123,56 +245,16 @@ function updateTime(){
 	val = time.getHours() + (val/60);
 	hourPointer.setRotate(30* val ,0,0 );  
 	val = time.getDay() + (val/24) - 1;
-	weekPointer.setRotate(val* rotweek ,0,0 ); 
-	
-	yearDisplay.nodeValue=
-	yearDisplay.textContent=
-	yearDisplay.data=	
-	yearDisplayGlow.nodeValue=
-	yearDisplayGlow.textContent=
-	yearDisplayGlow.data=time.getFullYear();
-	
-	val = time.getMonth()+1;
-	if (val < 10) val = String.fromCharCode(0xA0)+val;
-	monthDisplay.nodeValue=
-	monthDisplay.textContent=
-	monthDisplay.data=
-	monthDisplayGlow.nodeValue=
-	monthDisplayGlow.textContent=
-	monthDisplayGlow.data=val;
-	
-	val = time.getDate();
-	if (val < 10) val = String.fromCharCode(0xA0)+val;
-	dayDisplay.nodeValue=
-	dayDisplay.textContent=
-	dayDisplay.data=
-	dayDisplayGlow.nodeValue=
-	dayDisplayGlow.textContent=
-	dayDisplayGlow.data=val;
-	
-	val = time.getTimezoneOffset();
-	if (val >= 0){
-		var sign = '-';
-	}
-	else {
-		val *= -1;
-		var sign = '+';
-	}
-	var min = val % 60;
-	var hour = (val - min)/60;
-	if (min < 10) min = '0' + min;
-	if (hour < 10) hour = '0' + hour;
+	dayPointer.setRotate(val* rotday ,0,0 );
+	val = curWeek + (val/7);
+	weekPointer.setRotate(val* rotweek ,0,0 );
 	
 	
-	zoneDisplay.nodeValue=
-	zoneDisplay.textContent=
-	zoneDisplay.data=
-	zoneDisplayGlow.nodeValue=
-	zoneDisplayGlow.textContent=
-	zoneDisplayGlow.data= sign + hour + ':' + min;
+
 	
 }
 
+calcDay(new Date());
 setInterval(updateTime,1000/120);
 //svg.appendChild(g);
 
