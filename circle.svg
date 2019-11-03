@@ -25,7 +25,7 @@
   <path style="stroke-linecap: round" id="secondPointer" stroke-width="0.4" stroke="red" d="M0 0 L0 -40 Z" transform ="translate(50 50), rotate(30 0 0)" />
   <g transform="translate(2 100)">
   
-  <text class="label" transform="translate(4.5 8.5), rotate(-90 0 0)">ANO</text>
+  <text class="label" transform="translate(4.5 8.5), rotate(-90 0 0)" id="labelYear"></text>
   <g transform="translate(5 0)">
 	  <rect width="20" height="8.5" style="fill:black"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
@@ -35,7 +35,7 @@
 	  </g>
   </g>
  
-  <text class="label" transform="translate(29.5 8.5), rotate(-90 0 0)">MÊS</text>
+  <text class="label" transform="translate(29.5 8.5), rotate(-90 0 0)" id="labelMonth"></text>
   <g transform="translate(30 0)">
 	  <rect width="11" height="8.5" style="fill:black"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
@@ -45,7 +45,7 @@
 	  </g>
   </g> 
   
-   <text class="label" transform="translate(45.5 8.5), rotate(-90 0 0)">DIA</text>
+   <text class="label" transform="translate(45.5 8.5), rotate(-90 0 0)" id="labelDay"></text>
  <g transform="translate(46 0)" >
 	  <rect width="11" height="8.5" style="fill:black"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
@@ -55,7 +55,7 @@
 	  </g>
   </g>
   
-    <text class="label" transform="translate(65.5 8.5), rotate(-90 0 0)">FUSO</text>
+    <text class="label" transform="translate(65.5 8.5), rotate(-90 0 0)" id="labelTimeZone"></text>
  <g transform="translate(66 0)" >
 	  <rect width="30" height="8.5" style="fill:black"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
