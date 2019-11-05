@@ -7,6 +7,69 @@ var mofs = [0,0,0,0,0,0,0,0,0,0,0,0];
 var isLeap;
 var curDate;
 var curWeek = 0;
+
+function roman(num,classic){
+	var singles = ['I','X','C','M'];
+	var fives   = ['V','L','D'];
+	
+	var idx = 0;
+	var out = '';
+	num = Math.round(num);
+	if (num > 4999){
+		num = 4999;
+	} else if (num < 1){
+		num = 1;
+	}
+	while (num){
+		var part = num % 10;
+		var rpart = '';
+		var nrom = '';
+		num -= part;
+		num /= 10;
+				
+		if (part > 5){
+			part -= 5;
+			rpart = fives[idx];
+			nrom = singles[idx+1];
+		} else {
+			nrom = fives[idx];
+		}
+		
+		if (part == 4 && !classic){
+			rpart = singles[idx] + nrom;
+		} else {
+			for (var i = 0; i < part; i++){
+				rpart .= singles[idx];
+			}
+		}
+		
+		out = rpart + out;
+		idx++;
+	}
+}
+
+function japanese(num){
+	var singles = ['〇','一','二','三','四','五','六','七','八','九'];
+	var multi   = ['十','百','千'];
+	var multith = ['万','億'];
+	
+	num = Math.round(num);
+	if (num < 0){
+		num = 0;
+	} else if (num > 999999999999){
+		num = 999999999999;
+	}
+	
+	multiidx = -1;
+	multithdx = -1;
+	out = '';
+	while (num){
+		var part = num % 10;
+		num -= part;
+		num /= 10;
+	}
+}
+
 function calcDay(d){
 	var dt = 
 		(d.getFullYear() << 9) |
@@ -99,8 +162,16 @@ function calcDay(d){
 var g = document.getElementById('hours');
 var inc = Math.PI / 30;
 var curang = 0;
-var hours = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
-hours = ['','','','','','','','','','','',''];
+var hourTemplates = {
+		'ar' : [12,1,2,3,4,5,6,7,8,9,10,11],
+		'rom' : ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'],
+		'roc' : ['XII','I','II','III','IIII','V','VI','VII','VIII','VIIII','X','XI'],
+		'jazh' : ['十二','一','二','三','四','五','六','七','八','九','十','十一'],
+		'clear' : ['','','','','','','','','','','','']
+}
+var hourSel = 'ar';
+var hours = hourTemplates[hourSel];
+var hourLabels = [];
 for (var i = 0; i < 60; i++){
 	var p = document.createElementNS(SVGNS,'path');
 	p.setAttribute("stroke","black");
@@ -129,7 +200,9 @@ for (var i = 0; i < 60; i++){
 			'rotate('+ ang + ' 0 0)'
 		);
 		
-		t.appendChild(document.createTextNode(hours[idx]) );
+		t.Text = document.createTextNode(hours[idx]);
+		t.appendChild(t.Text);
+		hourLabels.push(t);
 		
 		g.appendChild(t);
 	}
@@ -143,14 +216,50 @@ for (var i = 0; i < 60; i++){
 
 inc = Math.PI / 7;
 var curang = 0;
-var weekDays = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
-var weekDays = ['','','','','','',''];
+var weekDayTemplates = {
+		'iso' : [1,2,3,4,5,6,7],
+		'isr' : ['I','II','III','IV','V','VI','VII'],
+		'isc' : ['I','II','III','IIII','V','VI','VII'],
+}
+var weekDaySel = 'clear';
+if (navigator.languages){
+	for (var i = 0; i < navigator.languages.length; i++){
+		var lan = navigator.languages[i];
+		if (lan.indexOf('-') >= 0){
+			lan = lan.substring(0,lan.indexOf('-'));
+		}
+		if (weekDayI10n[lan] && !weekDayTemplates[lan]){
+			weekDayTemplates[lan] = weekDayI10n[lan];
+			if (weekDaySel == 'clear'){
+				weekDaySel = lan;
+			}
+		}
+	}	
+} else {
+	weekDayTemplates['en'] = weekDayI10n['en'];
+}
+
+if (!weekDayTemplates['ja']){
+	weekDayTemplates['ja'] = weekDayI10n['ja'];
+}
+if (!weekDayTemplates['zh']){
+	weekDayTemplates['zh'] = weekDayI10n['zh'];
+}
+
+weekDayTemplates['clear'] = ['','','','','','','']; 
+
+
+var weekDays = weekDayTemplates[weekDaySel];
+
+console.log(navigator);
+
 
 var wofs = 29;
 var wpos = 21;
 var wpos2 = wpos - 1;
 var wlen = 16;
 var wdif = 2;
+var dayLabels = [];
 
 for (var i = 0; i < 14; i++){
 	var p = document.createElementNS(SVGNS,'path');
@@ -165,7 +274,7 @@ for (var i = 0; i < 14; i++){
 		var t = document.createElementNS(SVGNS,'text');
 		
 		var ang = (curang * 180 / Math.PI) % 360;
-		var dist = 41.25;
+		var dist = 11;
 		if (ang > 90 && ang < 270){
 			ang += 180;
 			dist += 3;
@@ -178,9 +287,11 @@ for (var i = 0; i < 14; i++){
 			'rotate('+ang + ' 0 0)'
 		);
 		
-		t.appendChild(document.createTextNode(weekDays[idx]) );
+		t.Text = document.createTextNode(weekDays[idx]);
+		t.appendChild(t.Text);
 		
 		g.appendChild(t);
+		dayLabels.push(t);
 	}
 	p.setAttribute("d","M"+(wofs+wpos+Math.sin(curang)*wpos2 )+" "+(wofs+wpos+Math.cos(curang)* wpos2)+ " L"+(wofs+wpos+Math.sin(curang)*l )+" "+(wofs+wpos+Math.cos(curang)* l)+ " Z");
 	
@@ -276,3 +387,57 @@ for (var i = 0; i < 12; i++){
 	curang += inc;
 }
 svg.appendChild(g);*/
+function setDayLabels(name){
+	weekDaySel = name;
+	weekDays = weekDayTemplates[weekDaySel];
+	for (var l = 0; l < dayLabels.length; l++){
+		//console.log(dayLabels[l].Text,weekDays[l]);
+		dayLabels[l].Text.textContent = weekDays[l];
+	}
+}
+
+function switchDay(){
+	var next = false;
+	for (var i in weekDayTemplates){
+		//console.log(i);
+		if (i == weekDaySel){
+			next = true;
+			continue;
+		} else if (next) {
+			setDayLabels(i);
+			return;
+		}
+	}
+	for (var i in weekDayTemplates){
+		setDayLabels(i);
+		return;
+	}
+}
+
+
+function setHourLabels(name){
+	hourSel = name;
+	hours = hourTemplates[hourSel];
+	for (var l = 0; l < hourLabels.length; l++){
+		console.log(hourLabels[l].Text,hourLabels[l]);
+		hourLabels[l].Text.textContent = hours[l];
+	}
+}
+
+function switchClock(){
+	var next = false;
+	for (var i in hourTemplates){
+		console.log(i);
+		if (i == hourSel){
+			next = true;
+			continue;
+		} else if (next) {
+			setHourLabels(i);
+			return;
+		}
+	}
+	for (var i in hourTemplates){
+		setHourLabels(i);
+		return;
+	}
+}
