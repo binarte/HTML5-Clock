@@ -39,7 +39,7 @@ function roman(num,classic){
 			rpart = singles[idx] + nrom;
 		} else {
 			for (var i = 0; i < part; i++){
-				rpart .= singles[idx];
+				rpart += singles[idx];
 			}
 		}
 		
