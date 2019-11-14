@@ -8,6 +8,33 @@ var isLeap;
 var curDate;
 var curWeek = 0;
 
+function genTemplate(numbers, func){
+	var out = [];
+	for (var i = 0; i < numbers.length; i++) {
+		var v = numbers[i];
+		if ( (typeof v) == 'number'){
+			out.push(func(v));
+		} else {
+			out.push('' + v);
+		}
+	}
+	return out;
+}
+
+function genTemplates(numbers){
+	var out = {
+		'ar' : genTemplate(numbers, function(v){return v;}),
+		'rom' : genTemplate(numbers, roman),
+		'roc' : genTemplate(numbers, function(v){return roman(v,true);}),
+		'jazh' : genTemplate(numbers, japanese)
+	};
+	out.clear = [];
+	for (var i = 0; i < numbers.length; i++){
+		out.clear.push('');
+	}
+	return out;
+}
+
 function roman(num,classic){
 	var singles = ['I','X','C','M'];
 	var fives   = ['V','L','D'];
@@ -27,7 +54,7 @@ function roman(num,classic){
 		num -= part;
 		num /= 10;
 				
-		if (part > 5){
+		if (part >= 5){
 			part -= 5;
 			rpart = fives[idx];
 			nrom = singles[idx+1];
@@ -46,28 +73,47 @@ function roman(num,classic){
 		out = rpart + out;
 		idx++;
 	}
+	return out;
 }
 
 function japanese(num){
 	var singles = ['〇','一','二','三','四','五','六','七','八','九'];
-	var multi   = ['十','百','千'];
-	var multith = ['万','億'];
+	var multi   = ['','十','百','千'];
+	var multith = ['','万','億'];
 	
 	num = Math.round(num);
-	if (num < 0){
-		num = 0;
+	if (num <= 0){
+		return singles[0];
 	} else if (num > 999999999999){
 		num = 999999999999;
 	}
 	
-	multiidx = -1;
-	multithdx = -1;
-	out = '';
+	var out = '';
+	var idx = 0;
+	
 	while (num){
 		var part = num % 10;
-		num -= part;
+		if (part) {
+			num -= part;
+			var sub = idx % 4;
+			var mul = (idx - sub) / 4;
+			if (sub){
+				if (part == 1){
+					out = multi[sub] + out;
+				} else {
+					out = singles[part] + multi[sub] + out;
+				}
+			} else {
+				out = singles[part] + multith[mul] + out;
+			}
+			//alert(mul);
+			//out = singles[part] + multi[sub] + multith[mul] + out;
+		}
+		
+		idx++;
 		num /= 10;
 	}
+	return out;
 }
 
 function calcDay(d){
@@ -104,13 +150,11 @@ function calcDay(d){
 	if (ofs >= 3){
 		ofs -= 7;
 	}
-	console.log(ofs);
 	for (var i = 0; i < 12; i++){
 		mofs[i] = ofs;
 		ofs += mlen[i];
 	}
 	curWeek = ((mofs[d.getMonth()] + d.getDate() - d.getDay()) / 7); 
-	console.log(mofs,d,curWeek);
 	
 	yearDisplay.nodeValue=
 		yearDisplay.textContent=
@@ -159,16 +203,55 @@ function calcDay(d){
 		zoneDisplayGlow.data= sign + hour + ':' + min;
 }
 
+var nums = [12];
+for (var i = 1; i < 12; i++) nums.push(i);
+var hourTemplates = genTemplates(nums);
+
+nums = ['W'];
+for (var i = 5; i < 52; i+=4) nums.push(i);
+var weekTemplates = genTemplates(nums);
+
+nums = [];
+for (var i = 1; i <= 7; i++) nums.push(i);
+var _weekDayTemplates = genTemplates(nums);
+
+var weekDayTemplates = {};
+for (i in _weekDayTemplates){
+	if (i != 'clear'){
+		weekDayTemplates[i] = _weekDayTemplates[i];
+	}
+}
+
+var weekDaySel = 'clear';
+if (navigator.languages){
+	for (var i = 0; i < navigator.languages.length; i++){
+		var lan = navigator.languages[i];
+		if (lan.indexOf('-') >= 0){
+			lan = lan.substring(0,lan.indexOf('-'));
+		}
+		if (weekDayI10n[lan] && !weekDayTemplates[lan]){
+			weekDayTemplates[lan] = weekDayI10n[lan];
+			if (weekDaySel == 'clear'){
+				weekDaySel = lan;
+			}
+		}
+	}	
+} else {
+	weekDayTemplates['en'] = weekDayI10n['en'];
+}
+
+if (!weekDayTemplates['ja']){
+	weekDayTemplates['ja'] = weekDayI10n['ja'];
+}
+if (!weekDayTemplates['zh']){
+	weekDayTemplates['zh'] = weekDayI10n['zh'];
+}
+
+weekDayTemplates.clear = _weekDayTemplates.clear; 
+
 var g = document.getElementById('hours');
 var inc = Math.PI / 30;
 var curang = 0;
-var hourTemplates = {
-		'ar' : [12,1,2,3,4,5,6,7,8,9,10,11],
-		'rom' : ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'],
-		'roc' : ['XII','I','II','III','IIII','V','VI','VII','VIII','VIIII','X','XI'],
-		'jazh' : ['十二','一','二','三','四','五','六','七','八','九','十','十一'],
-		'clear' : ['','','','','','','','','','','','']
-}
 var hourSel = 'ar';
 var hours = hourTemplates[hourSel];
 var hourLabels = [];
@@ -216,42 +299,9 @@ for (var i = 0; i < 60; i++){
 
 inc = Math.PI / 7;
 var curang = 0;
-var weekDayTemplates = {
-		'iso' : [1,2,3,4,5,6,7],
-		'isr' : ['I','II','III','IV','V','VI','VII'],
-		'isc' : ['I','II','III','IIII','V','VI','VII'],
-}
-var weekDaySel = 'clear';
-if (navigator.languages){
-	for (var i = 0; i < navigator.languages.length; i++){
-		var lan = navigator.languages[i];
-		if (lan.indexOf('-') >= 0){
-			lan = lan.substring(0,lan.indexOf('-'));
-		}
-		if (weekDayI10n[lan] && !weekDayTemplates[lan]){
-			weekDayTemplates[lan] = weekDayI10n[lan];
-			if (weekDaySel == 'clear'){
-				weekDaySel = lan;
-			}
-		}
-	}	
-} else {
-	weekDayTemplates['en'] = weekDayI10n['en'];
-}
-
-if (!weekDayTemplates['ja']){
-	weekDayTemplates['ja'] = weekDayI10n['ja'];
-}
-if (!weekDayTemplates['zh']){
-	weekDayTemplates['zh'] = weekDayI10n['zh'];
-}
-
-weekDayTemplates['clear'] = ['','','','','','','']; 
 
 
 var weekDays = weekDayTemplates[weekDaySel];
-
-console.log(navigator);
 
 
 var wofs = 29;
@@ -302,13 +352,16 @@ for (var i = 0; i < 14; i++){
 
 g = document.getElementById('week');
 inc = Math.PI / 26;
-var curang = Math.PI;
+var curang = 0;//Math.PI;
 
 var wofs = 0;
 var wpos = 50;
 var wpos2 = wpos - 1;
 var wlen = 47;
-var wdif = 2;
+var wdif = 1;
+var weekLabels = [];
+var weeks = weekTemplates['ar'];
+var weekSel = 'ar';
 for (var i = 0; i < 52; i++){
 	var p = document.createElementNS(SVGNS,'path');
 	p.setAttribute("stroke","black");
@@ -318,8 +371,35 @@ for (var i = 0; i < 52; i++){
 	}
 	else {
 		l = wlen - wdif;
+		
+
+		
+		var idx = i/4;
+		var t = document.createElementNS(SVGNS,'text');
+		
+		var ang = (curang * 180 / Math.PI) % 360;
+		var dist = 42;
+		if (ang > 90 && ang < 270){
+			ang += 180;
+			dist += 3;
+		}
+		
+		//t.setAttribute('x',50+Math.sin(curang)*44);
+		//t.setAttribute('y',50-Math.cos(curang)*44);
+		t.setAttribute('class','clock label');
+		t.setAttribute('transform',
+			'translate(' + (50+Math.sin(curang)*dist) + ' ' + (50-Math.cos(curang)*dist) + '), '+
+			'rotate('+ ang + ' 0 0)'
+		);
+		
+		t.Text = document.createTextNode(weeks[idx]);
+		t.appendChild(t.Text);
+		
+		g.appendChild(t);
+		weekLabels.push(t);
 	}
-	p.setAttribute("d","M"+(wofs+wpos+Math.sin(curang)*wpos2 )+" "+(wofs+wpos+Math.cos(curang)* wpos2)+ " L"+(wofs+wpos+Math.sin(curang)*l )+" "+(wofs+wpos+Math.cos(curang)* l)+ " Z");
+	var ang = curang - Math.PI/2;
+	p.setAttribute("d","M"+(wofs+wpos+Math.cos(ang)*wpos2)+" "+(wofs+wpos+Math.sin(ang)* wpos2)+ " L"+(wofs+wpos+Math.cos(ang)*l )+" "+(wofs+wpos+Math.sin(ang)* l)+ " Z");
 	
 	g.appendChild(p);
 	
@@ -359,14 +439,10 @@ function updateTime(){
 	dayPointer.setRotate(val* rotday ,0,0 );
 	val = curWeek + (val/7);
 	weekPointer.setRotate(val* rotweek ,0,0 );
-	
-	
-
-	
 }
 
 calcDay(new Date());
-setInterval(updateTime,1000/120);
+updateTime();
 //svg.appendChild(g);
 
 /*
@@ -391,7 +467,6 @@ function setDayLabels(name){
 	weekDaySel = name;
 	weekDays = weekDayTemplates[weekDaySel];
 	for (var l = 0; l < dayLabels.length; l++){
-		//console.log(dayLabels[l].Text,weekDays[l]);
 		dayLabels[l].Text.textContent = weekDays[l];
 	}
 }
@@ -399,7 +474,6 @@ function setDayLabels(name){
 function switchDay(){
 	var next = false;
 	for (var i in weekDayTemplates){
-		//console.log(i);
 		if (i == weekDaySel){
 			next = true;
 			continue;
@@ -419,7 +493,6 @@ function setHourLabels(name){
 	hourSel = name;
 	hours = hourTemplates[hourSel];
 	for (var l = 0; l < hourLabels.length; l++){
-		console.log(hourLabels[l].Text,hourLabels[l]);
 		hourLabels[l].Text.textContent = hours[l];
 	}
 }
@@ -427,7 +500,6 @@ function setHourLabels(name){
 function switchClock(){
 	var next = false;
 	for (var i in hourTemplates){
-		console.log(i);
 		if (i == hourSel){
 			next = true;
 			continue;
@@ -441,3 +513,34 @@ function switchClock(){
 		return;
 	}
 }
+
+function switchWeek(){
+	var next = false;
+	for (var i in weekTemplates){
+		if (i == weekSel){
+			next = true;
+			continue;
+		} else if (next) {
+			setWeekLabels(i);
+			return;
+		}
+	}
+	for (var i in weekTemplates){
+		setWeekLabels(i);
+		return;
+	}
+}
+
+function setWeekLabels(name){
+	weekSel = name;
+	weeks = weekTemplates[weekSel];
+	for (var l = 0; l < weekLabels.length; l++){
+		weekLabels[l].Text.textContent = weeks[l];
+	}
+}
+
+
+
+setInterval(updateTime,1000/144);
+
+console.log(weekTemplates);

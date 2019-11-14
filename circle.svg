@@ -19,10 +19,12 @@
   <circle cx="50" cy="50" r="40" stroke="black" stroke-width="0.5" fill="white"/>
   <circle cx="50" cy="50" r="20"  fill="#f8f8f8"/>
   <g id="hours"/>
-  <path style="stroke: rgba(0,0,255,0.7); stroke-linecap:round" id="dayPointer" stroke-width="1" d="M0 0 L0 -17.5 Z" transform ="translate(50 50), rotate(0 0 0)" />
-  <path style="stroke-linecap: round" id="hourPointer" stroke-width="0.8" stroke="rgba(0,0,0,0.7)" d="M0 0 L0 -30 Z" transform ="translate(50 50), rotate(10 0 0)" />
-  <path style="stroke-linecap: round" id="minutePointer" stroke-width="0.6" stroke="rgba(0,0,0,0.7)" d="M0 0 L0 -37 Z" transform ="translate(50 50), rotate(20 0 0)" />
-  <path style="stroke-linecap: round" id="secondPointer" stroke-width="0.4" stroke="rgba(255,0,0,0.7)" d="M0 0 L0 -40 Z" transform ="translate(50 50), rotate(30 0 0)" />
+  <g style="opacity: 0.75;">
+  <path style="stroke: blue; stroke-linecap:round" id="dayPointer" stroke-width="1" d="M0 0 L0 -17.5 Z" transform ="translate(50 50), rotate(0 0 0)" />
+  <path style="stroke-linecap: round" id="hourPointer" stroke-width="0.8" stroke="black" d="M0 0 L0 -30 Z" transform ="translate(50 50), rotate(10 0 0)" />
+  <path style="stroke-linecap: round" id="minutePointer" stroke-width="0.6" stroke="black" d="M0 0 L0 -37 Z" transform ="translate(50 50), rotate(20 0 0)" />
+  <path style="stroke-linecap: round" id="secondPointer" stroke-width="0.4" stroke="red" d="M0 0 L0 -40 Z" transform ="translate(50 50), rotate(30 0 0)" />
+  </g>
   <g transform="translate(2 100)">
   
   <text class="label" transform="translate(4.5 8.5), rotate(-90 0 0)" id="labelYear"></text>
