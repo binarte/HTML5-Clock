@@ -1,4 +1,9 @@
 var SVGNS = "http://www.w3.org/2000/svg";
+var MODE_LOCAL = 0;
+var MODE_UTC = 1;
+var MODE_SWATCH = 2;
+var MODE_MAX = MODE_SWATCH;
+var mode = MODE_LOCAL;
 
 var svg = document.getElementsByTagName('svg')[0];
 var l;
@@ -8,72 +13,36 @@ var isLeap;
 var curDate;
 var curWeek = 0;
 
-function genTemplate(numbers, func){
-	var out = [];
-	for (var i = 0; i < numbers.length; i++) {
-		var v = numbers[i];
-		if ( (typeof v) == 'number'){
-			out.push(func(v));
-		} else {
-			out.push('' + v);
-		}
-	}
-	return out;
-}
 
-function genTemplates(numbers){
-	var out = {
-		'ar' : genTemplate(numbers, function(v){return v;}),
-		'rom' : genTemplate(numbers, roman),
-		'roc' : genTemplate(numbers, function(v){return roman(v,true);}),
-		'jazh' : genTemplate(numbers, japanese)
-	};
-	out.clear = [];
-	for (var i = 0; i < numbers.length; i++){
-		out.clear.push('');
-	}
-	return out;
-}
-
-function roman(num,classic){
-	var singles = ['I','X','C','M'];
-	var fives   = ['V','L','D'];
-	
-	var idx = 0;
-	var out = '';
-	num = Math.round(num);
-	if (num > 4999){
-		num = 4999;
-	} else if (num < 1){
-		num = 1;
-	}
-	while (num){
-		var part = num % 10;
-		var rpart = '';
-		var nrom = '';
-		num -= part;
-		num /= 10;
-				
-		if (part >= 5){
-			part -= 5;
-			rpart = fives[idx];
-			nrom = singles[idx+1];
-		} else {
-			nrom = fives[idx];
+function updateTimezone(){
+	if (mode == MODE_LOCAL){
+		var val = (new Date()).getTimezoneOffset();
+		if (val >= 0){
+			var sign = '-';
 		}
-		
-		if (part == 4 && !classic){
-			rpart = singles[idx] + nrom;
-		} else {
-			for (var i = 0; i < part; i++){
-				rpart += singles[idx];
-			}
+		else {
+			val *= -1;
+			var sign = '+';
 		}
+		var min = val % 60;
+		var hour = (val - min)/60;
+		if (min < 10) min = '0' + min;
+		if (hour < 10) hour = '0' + hour;
 		
-		out = rpart + out;
-		idx++;
+		zoneDisplay.nodeValue=
+		zoneDisplay.textContent=
+		zoneDisplay.data=
+		zoneDisplayGlow.nodeValue=
+		zoneDisplayGlow.textContent=
+		zoneDisplayGlow.data= sign + hour + ':' + min;
+	} else {
+		zoneDisplay.nodeValue=
+		zoneDisplay.textContent=
+		zoneDisplay.data=
+		zoneDisplayGlow.nodeValue=
+		zoneDisplayGlow.textContent=
+		zoneDisplayGlow.data= ' 00:00';
 	}
-	return out;
 }
 
 function japanese(num){
@@ -181,26 +150,7 @@ function calcDay(d){
 		dayDisplayGlow.textContent=
 		dayDisplayGlow.data=val;
 		
-		val = d.getTimezoneOffset();
-		if (val >= 0){
-			var sign = '-';
-		}
-		else {
-			val *= -1;
-			var sign = '+';
-		}
-		var min = val % 60;
-		var hour = (val - min)/60;
-		if (min < 10) min = '0' + min;
-		if (hour < 10) hour = '0' + hour;
-		
-		
-		zoneDisplay.nodeValue=
-		zoneDisplay.textContent=
-		zoneDisplay.data=
-		zoneDisplayGlow.nodeValue=
-		zoneDisplayGlow.textContent=
-		zoneDisplayGlow.data= sign + hour + ':' + min;
+	updateTimezone();
 }
 
 var nums = [12];
@@ -249,53 +199,14 @@ if (!weekDayTemplates['zh']){
 
 weekDayTemplates.clear = _weekDayTemplates.clear; 
 
-var g = document.getElementById('hours');
+var swatchView = document.getElementById('swatch');
+var hourView = document.getElementById('hours');
+var g = hourView;
 var inc = Math.PI / 30;
 var curang = 0;
 var hourSel = 'ar';
 var hours = hourTemplates[hourSel];
 var hourLabels = [];
-for (var i = 0; i < 60; i++){
-	var p = document.createElementNS(SVGNS,'path');
-	p.setAttribute("stroke","black");
-	p.setAttribute("stroke-width","0.2");
-	if (i % 5){
-		 l = 38;
-	}
-	else {
-		l = 36;
-		
-		var idx = i/5;
-		var t = document.createElementNS(SVGNS,'text');
-		
-		var ang = (curang * 180 / Math.PI) % 360;
-		var dist = 31.25;
-		if (ang > 90 && ang < 270){
-			ang += 180;
-			dist += 3;
-		}
-		
-		//t.setAttribute('x',50+Math.sin(curang)*44);
-		//t.setAttribute('y',50-Math.cos(curang)*44);
-		t.setAttribute('class','clock label');
-		t.setAttribute('transform',
-			'translate(' + (50+Math.sin(curang)*dist) + ' ' + (50-Math.cos(curang)*dist) + '), '+
-			'rotate('+ ang + ' 0 0)'
-		);
-		
-		t.Text = document.createTextNode(hours[idx]);
-		t.appendChild(t.Text);
-		hourLabels.push(t);
-		
-		g.appendChild(t);
-	}
-	p.setAttribute("d","M"+(50+Math.sin(curang)*40 )+" "+(50+Math.cos(curang)* 40)+ " L"+(50+Math.sin(curang)*l )+" "+(50+Math.cos(curang)* l)+ " Z");
-	
-	g.appendChild(p);
-	
-	curang += inc;
-}	
-
 
 inc = Math.PI / 7;
 var curang = 0;
@@ -310,45 +221,7 @@ var wpos2 = wpos - 1;
 var wlen = 16;
 var wdif = 2;
 var dayLabels = [];
-
-for (var i = 0; i < 14; i++){
-	var p = document.createElementNS(SVGNS,'path');
-	p.setAttribute("stroke","black");
-	p.setAttribute("stroke-width","0.2");
-	if (i % 2){
-		l = wlen;
-	}
-	else {
-		l = wlen + wdif;
-		var idx = i/2;
-		var t = document.createElementNS(SVGNS,'text');
-		
-		var ang = (curang * 180 / Math.PI) % 360;
-		var dist = 11;
-		if (ang > 90 && ang < 270){
-			ang += 180;
-			dist += 3;
-		}
-			//t.setAttribute('x',50+Math.sin(curang)*44);
-		//t.setAttribute('y',50-Math.cos(curang)*44);
-		t.setAttribute('class','clock label');
-		t.setAttribute('transform',
-			'translate(' + (50+Math.sin(curang)*dist) + ' ' + (50-Math.cos(curang)*dist) + '), '+
-			'rotate('+ang + ' 0 0)'
-		);
-		
-		t.Text = document.createTextNode(weekDays[idx]);
-		t.appendChild(t.Text);
-		
-		g.appendChild(t);
-		dayLabels.push(t);
-	}
-	p.setAttribute("d","M"+(wofs+wpos+Math.sin(curang)*wpos2 )+" "+(wofs+wpos+Math.cos(curang)* wpos2)+ " L"+(wofs+wpos+Math.sin(curang)*l )+" "+(wofs+wpos+Math.cos(curang)* l)+ " Z");
-	
-	g.appendChild(p);
-	
-	curang += inc;
-}	
+g = document.getElementById('days');
 
 g = document.getElementById('week');
 inc = Math.PI / 26;
@@ -362,50 +235,6 @@ var wdif = 1;
 var weekLabels = [];
 var weeks = weekTemplates['ar'];
 var weekSel = 'ar';
-for (var i = 0; i < 52; i++){
-	var p = document.createElementNS(SVGNS,'path');
-	p.setAttribute("stroke","black");
-	p.setAttribute("stroke-width","0.2");
-	if (i % 4){
-		l = wlen;
-	}
-	else {
-		l = wlen - wdif;
-		
-
-		
-		var idx = i/4;
-		var t = document.createElementNS(SVGNS,'text');
-		
-		var ang = (curang * 180 / Math.PI) % 360;
-		var dist = 42;
-		if (ang > 90 && ang < 270){
-			ang += 180;
-			dist += 3;
-		}
-		
-		//t.setAttribute('x',50+Math.sin(curang)*44);
-		//t.setAttribute('y',50-Math.cos(curang)*44);
-		t.setAttribute('class','clock label');
-		t.setAttribute('transform',
-			'translate(' + (50+Math.sin(curang)*dist) + ' ' + (50-Math.cos(curang)*dist) + '), '+
-			'rotate('+ ang + ' 0 0)'
-		);
-		
-		t.Text = document.createTextNode(weeks[idx]);
-		t.appendChild(t.Text);
-		
-		g.appendChild(t);
-		weekLabels.push(t);
-	}
-	var ang = curang - Math.PI/2;
-	p.setAttribute("d","M"+(wofs+wpos+Math.cos(ang)*wpos2)+" "+(wofs+wpos+Math.sin(ang)* wpos2)+ " L"+(wofs+wpos+Math.cos(ang)*l )+" "+(wofs+wpos+Math.sin(ang)* l)+ " Z");
-	
-	g.appendChild(p);
-	
-	curang += inc;
-}	
-
 
 var weekPointer = document.getElementById('weekPointer').transform.baseVal.getItem(1);
 var dayPointer = document.getElementById('dayPointer').transform.baseVal.getItem(1);
@@ -426,16 +255,49 @@ var zoneDisplayGlow = document.getElementById('zoneGlow').firstChild;
 
 var rotday = 360 / 7;
 var rotweek = 360 / 52;
+
 function updateTime(){
 	var time = new Date();
 	calcDay(time);
-	var val =  time.getSeconds() + (time.getMilliseconds()/1000);
-	secondPointer.setRotate(6* val ,0,0 ); 
-	val = time.getMinutes() + (val/60);
-	minutePointer.setRotate(6* val ,0,0 );  
-	val = time.getHours() + (val/60);
-	hourPointer.setRotate(30* val ,0,0 );  
-	val = time.getDay() + (val/24) - 1;
+	var val, day;
+	if (mode == MODE_SWATCH){
+		val = 
+			(time.getUTCMilliseconds() / 1000) + 
+			(time.getUTCSeconds() *    1) +
+			(time.getUTCMinutes() *   60) +
+			(time.getUTCHours()   * 3600);
+
+		val /= 86400;
+		secondPointer.setRotate( val * 360000 ,0,0 );
+		minutePointer.setRotate( val * 3600 ,0,0 );
+		hourPointer  .setRotate( val * 360 ,0,0 );
+		//console.log (val);
+		day = time.getUTCDay();		
+	} else {		
+		var mil, sec, min, hour, day;
+		if (mode == MODE_LOCAL){
+			mil = time.getMilliseconds();
+			sec = time.getSeconds();
+			min = time.getMinutes();
+			hour = time.getHours();
+			day = time.getDay();
+		} else {
+			mil = time.getUTCMilliseconds();
+			sec = time.getUTCSeconds();
+			min = time.getUTCMinutes();
+			hour = time.getUTCHours();
+			day = time.getUTCDay();		
+		}	
+		
+		val =  sec + (mil/1000);
+		secondPointer.setRotate(6* val ,0,0 ); 
+		val = min + (val/60);
+		minutePointer.setRotate(6* val ,0,0 );  
+		val = hour + (val/60);
+		hourPointer.setRotate(30* val ,0,0 );
+		val /= 24;
+	}
+	val = day + val - 1;
 	dayPointer.setRotate(val* rotday ,0,0 );
 	val = curWeek + (val/7);
 	weekPointer.setRotate(val* rotweek ,0,0 );
@@ -539,8 +401,44 @@ function setWeekLabels(name){
 	}
 }
 
-
+function switchMode(){
+	mode++;
+	if (mode > MODE_MAX){
+		mode = 0;
+	}
+	if (mode == MODE_SWATCH){
+		hourView.style.display = 'none';
+		swatchView.style.display = '';
+	} else {
+		hourView.style.display = '';
+		swatchView.style.display = 'none';		
+	}
+	updateTimezone();
+}
 
 setInterval(updateTime,1000/144);
 
-console.log(weekTemplates);
+var swatchDisplay = document.getElementById('swatch');
+var hourDisplay = document.getElementById('hours');
+
+var weekLabels = generatePoints(document.getElementById('week'), 52, 4, 48.5);
+var swatchLabels = generatePoints(swatchDisplay, 100, 5, 40);
+var hourLabels = generatePoints(hourDisplay, 60, 5, 40);
+var dayLabels = generatePoints(document.getElementById('days'), 14, 2, 20);
+
+for (var i = 0; i < 20; i+=2){
+	var num = '' + i/20;
+	if (i != 0){
+		num = num.substring(1);
+	}
+	swatchLabels[i].Text.textContent = num;
+}
+
+if (mode == MODE_SWATCH){
+	hourDisplay.style.display = 'none';
+} else {
+	swatchDisplay.style.display = 'none';
+}
+setHourLabels(hourSel);
+setDayLabels(weekDaySel);
+setWeekLabels(weekSel);

@@ -28,3 +28,7 @@
 .clock.label{
 	text-anchor: middle;
 }
+
+.dayClock {
+	fill: #eee;
+}
