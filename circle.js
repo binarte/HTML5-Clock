@@ -427,11 +427,11 @@ var hourLabels = generatePoints(hourDisplay, 60, 5, 40);
 var dayLabels = generatePoints(document.getElementById('days'), 14, 2, 20);
 
 for (var i = 0; i < 20; i+=2){
-	var num = '' + i/20;
-	if (i != 0){
-		num = num.substring(1);
+	if (i == 0){
+		swatchLabels[i].Text.textContent = '0';
+	} else {		
+		swatchLabels[i].Text.textContent = '.' + i/2;
 	}
-	swatchLabels[i].Text.textContent = num;
 }
 
 if (mode == MODE_SWATCH){
