@@ -1,3 +1,35 @@
+function calcSunRiseSet(){
+	var date = new Date();
+	var yr = date.getFullYear() - 2000;
+	var n = 0,sub;
+	var leap = true;
+	
+	while (yr > 400){
+		n += 146097;
+		yr -= 400;
+		leap = true;
+	}
+	while (yr > 100){
+		n += 36524;
+		yr -= 100;	
+		leap = false;
+	}
+	while (yr > 4) {
+		n += 1461;
+		yr -= 4;
+		leap = true;		
+	}
+	while (yr > 0) {
+		n += 365;
+		yr --;
+		leap = false;
+	}
+	
+	console.log(n);
+	
+	
+}
+calcSunRiseSet();
 
 function generatePoints(where, count, labelInterval, radius) {
 	var A90 = Math.PI/2;
