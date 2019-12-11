@@ -60,12 +60,12 @@
   </g>
   
     <text class="label" transform="translate(65.5 8.5), rotate(-90 0 0)" id="labelTimeZone"></text>
- <g transform="translate(66 0)" >
+ <g transform="translate(66 0), scale(0.7)" >
 	  <rect width="30" height="8.5" style="fill:black"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
-		  <text class="digitalBG" id="zoneBG">+88:88</text>
-		  <text class="digital" id="zone">+88:88</text>
-		  <text class="digital glow" id="zoneGlow">+88:88</text>
+		  <text class="digitalBG" id="zoneBG">+88:88:88</text>
+		  <text class="digital" id="zone">+88:88:88</text>
+		  <text class="digital glow" id="zoneGlow">+88:88:88</text>
 	  </g>
 	  <rect width="30" height="8.5" style="fill:transparent" onclick="switchMode()"/>
   </g>

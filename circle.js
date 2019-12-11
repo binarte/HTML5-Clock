@@ -1,7 +1,8 @@
 var SVGNS = "http://www.w3.org/2000/svg";
 var MODE_LOCAL = 0;
-var MODE_UTC = 1;
-var MODE_SWATCH = 2;
+var MODE_REALLOCAL = 1;
+var MODE_UTC = 2;
+var MODE_SWATCH = 3;
 var MODE_MAX = MODE_SWATCH;
 var mode = MODE_LOCAL;
 
@@ -14,34 +15,64 @@ var curDate;
 var curWeek = 0;
 
 
-function updateTimezone(){
-	if (mode == MODE_LOCAL){
-		var val = (new Date()).getTimezoneOffset();
+var realofs;
+var realofs_sec = 0;
+var realofs_min = 0;
+var realofs_hr = 0;
+var realofs_sign = 1;
+var realofs_mul = (12 * 60 * 60) / 180;
+
+function updateTimezone(pos){
+	if (pos){
+		realofs = pos.coords.longitude * realofs_mul;
+		realofs_sign = realofs < 0 ? -1 : 1;
+		realofs_hr = realofs * realofs_sign;
+		
+		realofs_min = realofs_hr % 3600;
+		realofs_hr -= realofs_min;
+		realofs_hr /= 3600;
+		
+		realofs_sec = realofs_min % 60;
+		realofs_min -= realofs_sec;
+		realofs_min /= 60;
+	}
+	var val,sign,min,hour,sec;
+	
+	//navigator.geolocation.getCurrentPosition(getPosOfs);
+	switch (mode){
+	case MODE_LOCAL:
+		val = (new Date()).getTimezoneOffset();
 		if (val >= 0){
-			var sign = '-';
+			sign = '-';
 		}
 		else {
 			val *= -1;
-			var sign = '+';
+			sign = '+';
 		}
-		var min = val % 60;
-		var hour = (val - min)/60;
+		min = val % 60;
+		hour = (val - min)/60;
 		if (min < 10) min = '0' + min;
 		if (hour < 10) hour = '0' + hour;
 		
-		zoneDisplay.nodeValue=
-		zoneDisplay.textContent=
 		zoneDisplay.data=
-		zoneDisplayGlow.nodeValue=
-		zoneDisplayGlow.textContent=
-		zoneDisplayGlow.data= sign + hour + ':' + min;
-	} else {
-		zoneDisplay.nodeValue=
-		zoneDisplay.textContent=
+		zoneDisplayGlow.data= sign + hour + ':' + min + ':00';
+		break;
+	case MODE_REALLOCAL:
+		sign = realofs_sign > 0 ? '+' : '-';
+		min = realofs_min;
+		hour = realofs_hr;
+		sec = Math.floor(realofs_sec);
+		if (min < 10) min = '0' + min;
+		if (hour < 10) hour = '0' + hour;
+		if (sec < 10) sec = '0' + sec;
+
 		zoneDisplay.data=
-		zoneDisplayGlow.nodeValue=
-		zoneDisplayGlow.textContent=
-		zoneDisplayGlow.data= ' 00:00';
+		zoneDisplayGlow.data= sign + hour + ':' + min + ':' + sec;
+		
+		break;
+	default:
+		zoneDisplay.data=
+		zoneDisplayGlow.data= ' 00:00:00';
 	}
 }
 
@@ -251,15 +282,13 @@ var dayDisplayGlow = document.getElementById('dayGlow').firstChild;
 var zoneDisplay = document.getElementById('zone').firstChild;
 var zoneDisplayGlow = document.getElementById('zoneGlow').firstChild;
 
-
-
 var rotday = 360 / 7;
 var rotweek = 360 / 52;
 
 function updateTime(){
 	var time = new Date();
 	calcDay(time);
-	var val, day;
+	var val, day, ofs;
 	if (mode == MODE_SWATCH){
 		val = 
 			(time.getUTCMilliseconds() / 1000) + 
@@ -271,7 +300,7 @@ function updateTime(){
 		secondPointer.setRotate( val * 360000 ,0,0 );
 		minutePointer.setRotate( val * 3600 ,0,0 );
 		hourPointer  .setRotate( val * 360 ,0,0 );
-		//console.log (val);
+		
 		day = time.getUTCDay();		
 	} else {		
 		var mil, sec, min, hour, day;
@@ -286,8 +315,20 @@ function updateTime(){
 			sec = time.getUTCSeconds();
 			min = time.getUTCMinutes();
 			hour = time.getUTCHours();
-			day = time.getUTCDay();		
+			day = time.getUTCDay();
 		}	
+		
+		if (mode == MODE_REALLOCAL) {
+			if (realofs_sign > 0){
+				sec += realofs_sec;
+				min += realofs_min;
+				hour += realofs_hr;
+			} else {
+				sec -= realofs_sec;
+				min -= realofs_min;
+				hour -= realofs_hr;				
+			}
+		}
 		
 		val =  sec + (mil/1000);
 		secondPointer.setRotate(6* val ,0,0 ); 
@@ -417,6 +458,7 @@ function switchMode(){
 }
 
 setInterval(updateTime,1000/144);
+navigator.geolocation.watchPosition(updateTimezone);
 
 var swatchDisplay = document.getElementById('swatch');
 var hourDisplay = document.getElementById('hours');
