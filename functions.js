@@ -1,35 +1,85 @@
+var TTDATE = new Date();
+TTDATE.setUTCFullYear(2000);
+TTDATE.setUTCMonth(0);
+TTDATE.setUTCDate(1);
+TTDATE.setUTCHours(12);
+TTDATE.setUTCMinutes(0);
+TTDATE.setUTCSeconds(0);
+TTDATE.setUTCMilliseconds(0);
+
+var EINC = (23.44 * Math.PI) / 180;
+var EINCSIN = Math.sin(EINC);
+
+var ST = (-0.83 * Math.PI) / 180;
+var STSIN = Math.sin(ST);
+
+var ST_DAYNIGHT = 0;
+var ST_DAY  = 1;
+var ST_NIGHT  = 2;
+
+
 function calcSunRiseSet(){
-	var date = new Date();
-	var yr = date.getFullYear() - 2000;
-	var n = 0,sub;
-	var leap = true;
+	var date = new Date();	
+	var n = Math.floor((date.getTime() - TTDATE.getTime())/86400000);
+	n += 0.0008;
 	
-	while (yr > 400){
-		n += 146097;
-		yr -= 400;
-		leap = true;
+	var long = 0, lat = 0, alt = 0;
+	if (coords && coords.longitude) {
+		long = coords.longitude;		
 	}
-	while (yr > 100){
-		n += 36524;
-		yr -= 100;	
-		leap = false;
+	if (coords && coords.latitude) {
+		lat = coords.latitude;
+		//lat = -70;
 	}
-	while (yr > 4) {
-		n += 1461;
-		yr -= 4;
-		leap = true;		
-	}
-	while (yr > 0) {
-		n += 365;
-		yr --;
-		leap = false;
+	if (coords && coords.altitude) {
+		alt = coords.altitude;
 	}
 	
-	console.log(n);
+	var loRad = (long * Math.PI) / 180;
+	var laRad = (lat * Math.PI) / 180;
 	
+	var J = n - (long / 360);
+	var M = (357.5281 + (0.98560028 * J)) % 360;
+	var Mrad = (M * Math.PI) /180;
+	var C = (1.9148 * Math.sin(Mrad)) + (0.02 * Math.sin(2*Mrad)) + (0.0003 * Math.sin(3*Mrad));
+	var L = (M + C + 180 + 102.9372) % 360;
+	var Lrad = (L * Math.PI) /180;
+	var Jt = 2451545.0 + J + (Math.sin(Mrad) * 0.0053) - (Math.sin(2 * Lrad) * 0.0069); 
+	var sinT = Math.sin(Lrad) * EINCSIN;
+	var Trad = Math.asin(sinT);
+	
+	var cosW = (STSIN - (Math.sin(laRad) * sinT) ) / (Math.cos(laRad) * Math.cos(Trad) );
+	if (cosW > 1) {
+		return {
+			'state' : ST_NIGHT
+		}
+	} else if (cosW < -1) {
+		return {
+			'state' : ST_DAY
+		}
+	}
+	var W = (Math.acos(cosW) * 180) / Math.PI;
+	
+	
+	var Jrise = Jt - (W / 360);
+	var Jset = Jt + (W / 360);
+	
+	var TSrise = ((Jrise - 2451545) * 86400000) + TTDATE.getTime();
+	var TSset = ((Jset - 2451545) * 86400000) + TTDATE.getTime();
+	
+	var Drise = new Date();
+	var Dset = new Date();
+	Drise.setTime(TSrise);
+	Dset.setTime(TSset);
+	
+	
+	return {
+		"state": ST_DAYNIGHT,
+		"rise" : Drise,
+		"set"  : Dset
+	};
 	
 }
-calcSunRiseSet();
 
 function generatePoints(where, count, labelInterval, radius) {
 	var A90 = Math.PI/2;

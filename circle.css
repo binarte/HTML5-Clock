@@ -9,6 +9,12 @@
 	color: white;
 	font-size: 10px;
 }
+
+.RiseSet {
+	font-size: 5px;
+	text-anchor:middle;
+	text-align:center;
+}
 #yearBG,.digitalBG{
 	fill:#600;
 }

@@ -21,10 +21,14 @@ var realofs_min = 0;
 var realofs_hr = 0;
 var realofs_sign = 1;
 var realofs_mul = (12 * 60 * 60) / 180;
+var coords;
 
 function updateTimezone(pos){
+	var curOfs;
 	if (pos){
-		realofs = pos.coords.longitude * realofs_mul;
+		var lon = pos.coords.longitude;
+		
+		realofs = lon * realofs_mul;
 		realofs_sign = realofs < 0 ? -1 : 1;
 		realofs_hr = realofs * realofs_sign;
 		
@@ -35,6 +39,7 @@ function updateTimezone(pos){
 		realofs_sec = realofs_min % 60;
 		realofs_min -= realofs_sec;
 		realofs_min /= 60;
+		coords = pos.coords;
 	}
 	var val,sign,min,hour,sec;
 	
@@ -42,6 +47,7 @@ function updateTimezone(pos){
 	switch (mode){
 	case MODE_LOCAL:
 		val = (new Date()).getTimezoneOffset();
+		curOfs = val * -60;
 		if (val >= 0){
 			sign = '-';
 		}
@@ -55,13 +61,14 @@ function updateTimezone(pos){
 		if (hour < 10) hour = '0' + hour;
 		
 		zoneDisplay.data=
-		zoneDisplayGlow.data= sign + hour + ':' + min + ':00';
+		zoneDisplayGlow.data= sign + hour + ':' + min;
 		break;
 	case MODE_REALLOCAL:
+		curOfs = realofs;
 		sign = realofs_sign > 0 ? '+' : '-';
 		min = realofs_min;
 		hour = realofs_hr;
-		sec = Math.floor(realofs_sec);
+		sec = Math.round(realofs_sec*10)/10;
 		if (min < 10) min = '0' + min;
 		if (hour < 10) hour = '0' + hour;
 		if (sec < 10) sec = '0' + sec;
@@ -71,9 +78,41 @@ function updateTimezone(pos){
 		
 		break;
 	default:
+		curOfs = 0;
 		zoneDisplay.data=
-		zoneDisplayGlow.data= ' 00:00:00';
+		zoneDisplayGlow.data= ' 00:00';
 	}
+
+	var rs = calcSunRiseSet();
+	switch (rs.state) {
+	case ST_DAYNIGHT:
+	
+		var rise = (rs.rise.getUTCHours() * 3600) + (rs.rise.getUTCMinutes() * 60) + rs.rise.getUTCSeconds() + curOfs;
+		var set = (rs.set.getUTCHours() * 3600) + (rs.set.getUTCMinutes() * 60) + rs.set.getUTCSeconds() + curOfs;
+		
+		var mul = (mode == MODE_SWATCH) ? 86400 : 86400/2;
+		
+		try {
+			riseIcon.setRotate( (rise * 360)/mul,0,0);
+			setIcon.setRotate( (set * 360)/mul,0,0);
+		} catch (e){
+			console.log(e,rs,rise,set);
+		}
+		setIconStyle.removeProperty('display');
+		riseIconStyle.removeProperty('display');
+		break;
+	case ST_DAY:
+		riseIcon.setRotate(0,0,0);
+		riseIconStyle.removeProperty('display');
+		setIconStyle.setProperty('display','none');
+		break;
+	case ST_NIGHT:
+		setIcon.setRotate(0,0,0);
+		setIconStyle.removeProperty('display');
+		riseIconStyle.setProperty('display','none');
+		break;
+	}
+	
 }
 
 function japanese(num){
@@ -266,6 +305,12 @@ var wdif = 1;
 var weekLabels = [];
 var weeks = weekTemplates['ar'];
 var weekSel = 'ar';
+
+var riseIcon = document.getElementById('riseIcon').transform.baseVal.getItem(0);
+var riseIconStyle = document.getElementById('riseIcon').style;
+var setIcon = document.getElementById('setIcon').transform.baseVal.getItem(0);
+var setIconStyle = document.getElementById('setIcon').style;
+
 
 var weekPointer = document.getElementById('weekPointer').transform.baseVal.getItem(1);
 var dayPointer = document.getElementById('dayPointer').transform.baseVal.getItem(1);

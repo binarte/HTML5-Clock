@@ -21,6 +21,10 @@
   <g id="hours"/>
   <g id="swatch"/>
   <g id="days"/>
+  <g id="RiseSet" transform="translate(50 50)">
+ 	<text id="riseIcon" class="RiseSet" style="fill:yellow" transform="rotate(0 0 0) translate(0 -27)">☀️</text>
+  	<text id="setIcon" class="RiseSet" style="fill:gray" transform="rotate(0 0 0) translate(0 -27)">🌙</text>
+  </g>
   <g style="opacity: 0.75;">
   <path style="stroke: blue; stroke-linecap:round" id="dayPointer" stroke-width="1" d="M0 0 L0 -17.5 Z" transform ="translate(50 50), rotate(0 0 0)" />
   <path style="stroke-linecap: round" id="hourPointer" stroke-width="0.8" stroke="black" d="M0 0 L0 -30 Z" transform ="translate(50 50), rotate(10 0 0)" />
@@ -51,7 +55,7 @@
   
    <text class="label" transform="translate(45.5 8.5), rotate(-90 0 0)" id="labelDay"></text>
  <g transform="translate(46 0)" >
-	  <rect width="11" height="8.5" style="fill:black"/>
+	  <rect width="11" height="8.5" style="fill:#111"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
 		  <text class="digitalBG" id="dayBG">88</text>
 		  <text class="digital" id="day">20</text>
@@ -60,14 +64,14 @@
   </g>
   
     <text class="label" transform="translate(65.5 8.5), rotate(-90 0 0)" id="labelTimeZone"></text>
- <g transform="translate(66 0), scale(0.7)" >
-	  <rect width="30" height="8.5" style="fill:black"/>
+ <g transform="translate(60 0),scale(0.7)" >
+	  <rect width="52" height="8.5" style="fill:#111"/>
 	  <g transform="translate(0 7.5), skewX(-10)">
-		  <text class="digitalBG" id="zoneBG">+88:88:88</text>
-		  <text class="digital" id="zone">+88:88:88</text>
-		  <text class="digital glow" id="zoneGlow">+88:88:88</text>
+		  <text class="digitalBG" id="zoneBG">+88:88:88.8</text>
+		  <text class="digital" id="zone">+88:88</text>
+		  <text class="digital glow" id="zoneGlow">+88:88</text>
 	  </g>
-	  <rect width="30" height="8.5" style="fill:transparent" onclick="switchMode()"/>
+	  <rect width="52" height="8.5" style="fill:transparent" onclick="switchMode()"/>
   </g>
   </g>
 
