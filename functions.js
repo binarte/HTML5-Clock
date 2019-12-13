@@ -8,11 +8,11 @@ TTDATE.setUTCSeconds(0);
 TTDATE.setUTCMilliseconds(0);
 
 var LRDATE = new Date();
-LRDATE.setUTCFullYear(1999);
-LRDATE.setUTCMonth(7);
-LRDATE.setUTCDate(10);
-LRDATE.setUTCHours(0);
-LRDATE.setUTCMinutes(0);
+LRDATE.setUTCFullYear(2019);
+LRDATE.setUTCMonth(10);
+LRDATE.setUTCDate(26);
+LRDATE.setUTCHours(15);
+LRDATE.setUTCMinutes(05);
 LRDATE.setUTCSeconds(0);
 LRDATE.setUTCMilliseconds(0);
 
@@ -43,11 +43,16 @@ function calcLunarPhase(date) {
 	var diff = date.getTime() - LRDATE.getTime();
 	diff /= 86400000;
 	var period = diff % LUNARPERIOD;
-	var phase = (period * 8) / LUNARPERIOD;
+	var phase = (period * LUNARPHASES.length) / LUNARPERIOD;
+	var phaseProgress = phase - Math.floor(phase);
+	var idx = Math.floor(phase);
+	var next = (idx + 1) % LUNARPHASES.length;
 	return {
 		'period': period,
 		'phase' : phase,
-		'emoji' : LUNARPHASES[Math.floor(phase)]
+		'progress' : phaseProgress,
+		'emoji' : LUNARPHASES[idx],
+		'emojiNext' : LUNARPHASES[next]
 	}
 }
 
@@ -239,3 +244,11 @@ function roman(num,classic){
 	}
 	return out;
 }
+
+/*
+var d = new Date();
+for (var i = 0; i < 30; i++) {
+	var cl = calcLunarPhase(d);
+	console.log(cl,d);
+	d.setDate(d.getDate()+1);
+}*/

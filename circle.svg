@@ -24,6 +24,7 @@
   <g id="RiseSet" transform="translate(50 50)">
  	<text id="riseIcon" class="RiseSet" style="fill:yellow" transform="rotate(0 0 0) translate(0 -27)">☀️</text>
   	<text id="setIcon" class="RiseSet" style="fill:gray" transform="rotate(0 0 0) translate(0 -27)">🌙</text>
+  	<text id="setTransIcon" class="RiseSet" style="fill:gray" transform="rotate(0 0 0) translate(0 -27)">🌙</text>
   </g>
   <g style="opacity: 0.75;">
   <path style="stroke: blue; stroke-linecap:round" id="dayPointer" stroke-width="1" d="M0 0 L0 -17.5 Z" transform ="translate(50 50), rotate(0 0 0)" />

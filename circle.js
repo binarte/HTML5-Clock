@@ -17,7 +17,7 @@ var isLeap;
 var curDate;
 var curWeek = 0;
 
-var realofs;
+var realofs = 0;
 var realofs_sec = 0;
 var realofs_min = 0;
 var realofs_hr = 0;
@@ -26,7 +26,7 @@ var realofs_mul = (12 * 60 * 60) / 180;
 var coords;
 
 function updateTimezone(pos){
-	var curOfs;
+	var curOfs = 0;
 	if (pos){
 		var lon = pos.coords.longitude;
 		
@@ -87,6 +87,8 @@ function updateTimezone(pos){
 	
 	var phase = calcLunarPhase();
 	setIconNode.textContent = phase.emoji;
+	setTransIconNode.textContent = phase.emojiNext
+	setTransIconStyle.setProperty('opacity',phase.progress);
 
 	var rs = calcSunRiseSet();
 	switch (rs.state) {
@@ -100,6 +102,7 @@ function updateTimezone(pos){
 		try {
 			riseIcon.setRotate( (rise * 360)/mul,0,0);
 			setIcon.setRotate( (set * 360)/mul,0,0);
+			setTransIcon.setRotate( (set * 360)/mul,0,0);
 		} catch (e){
 			console.log(e,rs,rise,set);
 		}
@@ -316,6 +319,9 @@ var riseIconStyle = document.getElementById('riseIcon').style;
 var setIconNode = document.getElementById('setIcon');
 var setIcon = setIconNode.transform.baseVal.getItem(0);
 var setIconStyle = setIconNode.style;
+var setTransIconNode = document.getElementById('setTransIcon');
+var setTransIcon = setTransIconNode.transform.baseVal.getItem(0);
+var setTransIconStyle = setTransIconNode.style;
 
 
 var weekPointer = document.getElementById('weekPointer').transform.baseVal.getItem(1);
@@ -531,7 +537,7 @@ setWeekLabels(weekSel);
 
 var item;
 
-item = localStorage.getItem('mode');console.log(item);
+item = localStorage.getItem('mode');
 
 if(item){
 	setMode(item*1);
