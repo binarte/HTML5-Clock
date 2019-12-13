@@ -3,7 +3,10 @@ var MODE_LOCAL = 0;
 var MODE_REALLOCAL = 1;
 var MODE_UTC = 2;
 var MODE_SWATCH = 3;
+
+var MODE_MIN = MODE_LOCAL;
 var MODE_MAX = MODE_SWATCH;
+
 var mode = MODE_LOCAL;
 
 var svg = document.getElementsByTagName('svg')[0];
@@ -13,7 +16,6 @@ var mofs = [0,0,0,0,0,0,0,0,0,0,0,0];
 var isLeap;
 var curDate;
 var curWeek = 0;
-
 
 var realofs;
 var realofs_sec = 0;
@@ -82,6 +84,9 @@ function updateTimezone(pos){
 		zoneDisplay.data=
 		zoneDisplayGlow.data= ' 00:00';
 	}
+	
+	var phase = calcLunarPhase();
+	setIconNode.textContent = phase.emoji;
 
 	var rs = calcSunRiseSet();
 	switch (rs.state) {
@@ -308,8 +313,9 @@ var weekSel = 'ar';
 
 var riseIcon = document.getElementById('riseIcon').transform.baseVal.getItem(0);
 var riseIconStyle = document.getElementById('riseIcon').style;
-var setIcon = document.getElementById('setIcon').transform.baseVal.getItem(0);
-var setIconStyle = document.getElementById('setIcon').style;
+var setIconNode = document.getElementById('setIcon');
+var setIcon = setIconNode.transform.baseVal.getItem(0);
+var setIconStyle = setIconNode.style;
 
 
 var weekPointer = document.getElementById('weekPointer').transform.baseVal.getItem(1);
@@ -391,26 +397,7 @@ function updateTime(){
 
 calcDay(new Date());
 updateTime();
-//svg.appendChild(g);
 
-/*
-var hours = ['XII','I','II','III','IIII','V','VI','VII','VIII','VIIII','X','XI'];
-g = document.createElementNS(SVGNS,'g');
-inc = Math.PI / 6;
-var curang = 0;
-for (var i = 0; i < 12; i++){
-	var p = document.createElementNS(SVGNS,'text');
-	p.setAttribute("font-family","arial,verdana,sans-serif");
-	p.setAttribute("font-size","10");
-	p.setAttribute("fill","black");
-	p.setAttribute("x",50+Math.sin(curang)*40);
-	p.setAttribute("y",50-Math.cos(curang)*40);
-	p.appendChild(document.createTextNode(hours[i]) );
-	g.appendChild(p);
-	
-	curang += inc;
-}
-svg.appendChild(g);*/
 function setDayLabels(name){
 	weekDaySel = name;
 	weekDays = weekDayTemplates[weekDaySel];
@@ -427,11 +414,13 @@ function switchDay(){
 			continue;
 		} else if (next) {
 			setDayLabels(i);
+			localStorage.setItem('dayLabels',i);
 			return;
 		}
 	}
 	for (var i in weekDayTemplates){
 		setDayLabels(i);
+		localStorage.setItem('dayLabels',i);
 		return;
 	}
 }
@@ -453,11 +442,13 @@ function switchClock(){
 			continue;
 		} else if (next) {
 			setHourLabels(i);
+			localStorage.setItem('hourLabels',i);
 			return;
 		}
 	}
 	for (var i in hourTemplates){
 		setHourLabels(i);
+		localStorage.setItem('hourLabels',i);
 		return;
 	}
 }
@@ -470,11 +461,13 @@ function switchWeek(){
 			continue;
 		} else if (next) {
 			setWeekLabels(i);
+			localStorage.setItem('weekLabels',i);
 			return;
 		}
 	}
 	for (var i in weekTemplates){
 		setWeekLabels(i);
+		localStorage.setItem('weekLabels',i);
 		return;
 	}
 }
@@ -487,19 +480,25 @@ function setWeekLabels(name){
 	}
 }
 
-function switchMode(){
-	mode++;
-	if (mode > MODE_MAX){
-		mode = 0;
-	}
+function setMode(newMode){
+	mode = newMode;
 	if (mode == MODE_SWATCH){
 		hourView.style.display = 'none';
 		swatchView.style.display = '';
 	} else {
 		hourView.style.display = '';
 		swatchView.style.display = 'none';		
+	}	
+	updateTimezone();	
+}
+
+function switchMode(){
+	var newMode = mode+1;
+	if (newMode > MODE_MAX){
+		newMode = MODE_MIN;
 	}
-	updateTimezone();
+	setMode(newMode);	
+	localStorage.setItem('mode',newMode);
 }
 
 setInterval(updateTime,1000/144);
@@ -529,3 +528,27 @@ if (mode == MODE_SWATCH){
 setHourLabels(hourSel);
 setDayLabels(weekDaySel);
 setWeekLabels(weekSel);
+
+var item;
+
+item = localStorage.getItem('mode');console.log(item);
+
+if(item){
+	setMode(item*1);
+} 
+
+item = localStorage.getItem('weekLabels');
+if(item){
+	setWeekLabels(item);
+} 
+
+item = localStorage.getItem('dayLabels');
+if(item){
+	setDayLabels(item);
+} 
+
+item = localStorage.getItem('hourLabels');
+if(item){
+	setHourLabels(item);
+} 
+

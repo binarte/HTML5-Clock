@@ -7,6 +7,26 @@ TTDATE.setUTCMinutes(0);
 TTDATE.setUTCSeconds(0);
 TTDATE.setUTCMilliseconds(0);
 
+var LRDATE = new Date();
+LRDATE.setUTCFullYear(1999);
+LRDATE.setUTCMonth(7);
+LRDATE.setUTCDate(10);
+LRDATE.setUTCHours(0);
+LRDATE.setUTCMinutes(0);
+LRDATE.setUTCSeconds(0);
+LRDATE.setUTCMilliseconds(0);
+
+var LUNARPHASES = [
+	'🌑',
+	'🌒',
+	'🌓',
+	'🌔',
+	'🌕',
+	'🌖',
+	'🌗',
+	'🌘'	
+];
+
 var EINC = (23.44 * Math.PI) / 180;
 var EINCSIN = Math.sin(EINC);
 
@@ -16,23 +36,37 @@ var STSIN = Math.sin(ST);
 var ST_DAYNIGHT = 0;
 var ST_DAY  = 1;
 var ST_NIGHT  = 2;
+var LUNARPERIOD = 29.530588853;
 
+function calcLunarPhase(date) {
+	if (!date) date = new Date();
+	var diff = date.getTime() - LRDATE.getTime();
+	diff /= 86400000;
+	var period = diff % LUNARPERIOD;
+	var phase = (period * 8) / LUNARPERIOD;
+	return {
+		'period': period,
+		'phase' : phase,
+		'emoji' : LUNARPHASES[Math.floor(phase)]
+	}
+}
 
-function calcSunRiseSet(){
-	var date = new Date();	
+function calcSunRiseSet(date,pos){
+	if (!date) date = new Date();
+	if (!pos) pos = coords;
 	var n = Math.floor((date.getTime() - TTDATE.getTime())/86400000);
 	n += 0.0008;
 	
 	var long = 0, lat = 0, alt = 0;
-	if (coords && coords.longitude) {
-		long = coords.longitude;		
+	if (pos && pos.longitude) {
+		long = pos.longitude;		
 	}
-	if (coords && coords.latitude) {
-		lat = coords.latitude;
+	if (pos && pos.latitude) {
+		lat = pos.latitude;
 		//lat = -70;
 	}
-	if (coords && coords.altitude) {
-		alt = coords.altitude;
+	if (pos && pos.altitude) {
+		alt = pos.altitude;
 	}
 	
 	var loRad = (long * Math.PI) / 180;
