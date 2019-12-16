@@ -526,8 +526,8 @@ for (var i = 0; i < 20; i+=2){
 	}
 }
 
-function switchFullScreenn(){
-	console.log(window.parent.lol);
+function switchFullScreen(){
+	document.firstElementChild.requestFullscreen();
 }
 
 if (mode == MODE_SWATCH){
@@ -562,3 +562,17 @@ if(item){
 	setHourLabels(item);
 } 
 
+
+
+for (var i = 0; i < navigator.languages.length; i++) {
+	var lang = navigator.languages[i];
+	var ds = lang.indexOf('-');
+	if (ds > 0){
+		lang = lang.substring(0,ds);
+	}
+	if (titles[lang]){
+		document.title = titles[lang];
+		break;
+	}
+	console.log(lang);
+}

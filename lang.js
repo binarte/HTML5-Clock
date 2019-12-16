@@ -26,3 +26,11 @@ var weekDayI10n = {
 		'zh' : ['一','二','三','四','五','六','日'],
 
 };
+
+var titles = {
+		'en' : 'HTML5 Clock',
+		'es' : 'Reloj HTML5',
+		'pt' : 'Relógio HTML5',
+		'it' : 'Orologio HTML5',
+		'ja' : 'HTML5の時計'			
+};
