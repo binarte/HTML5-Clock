@@ -17,11 +17,26 @@ var isLeap;
 var curDate;
 var curWeek = 0;
 
-var realofs = 0;
+var _BDATE = new Date();
+var realofs = _BDATE.getTimezoneOffset() * -60;
 var realofs_sec = 0;
 var realofs_min = 0;
 var realofs_hr = 0;
 var realofs_sign = 1;
+function realOfs_calc(){
+	realofs_sign = realofs < 0 ? -1 : 1;
+	realofs_hr = realofs * realofs_sign;
+	
+	realofs_min = realofs_hr % 3600;
+	realofs_hr -= realofs_min;
+	realofs_hr /= 3600;
+	
+	realofs_sec = realofs_min % 60;
+	realofs_min -= realofs_sec;
+	realofs_min /= 60;
+}
+realOfs_calc();
+
 var realofs_mul = (12 * 60 * 60) / 180;
 var coords;
 
@@ -31,16 +46,7 @@ function updateTimezone(pos){
 		var lon = pos.coords.longitude;
 		
 		realofs = lon * realofs_mul;
-		realofs_sign = realofs < 0 ? -1 : 1;
-		realofs_hr = realofs * realofs_sign;
-		
-		realofs_min = realofs_hr % 3600;
-		realofs_hr -= realofs_min;
-		realofs_hr /= 3600;
-		
-		realofs_sec = realofs_min % 60;
-		realofs_min -= realofs_sec;
-		realofs_min /= 60;
+		realOfs_calc();
 		coords = pos.coords;
 	}
 	var val,sign,min,hour,sec;
@@ -508,7 +514,11 @@ function switchMode(){
 }
 
 setInterval(updateTime,1000/144);
-navigator.geolocation.watchPosition(updateTimezone);
+if (!navigator.geolocation.watchPosition(updateTimezone) ){
+	//console.log('rejected');
+	setInterval(updateTimezone,1000*5);
+}
+updateTimezone();
 
 var swatchDisplay = document.getElementById('swatch');
 var hourDisplay = document.getElementById('hours');

@@ -93,22 +93,41 @@ function calcLunarPhase(date) {
 	}
 }
 
+var long = 0, lat = 0, alt = 0;
+var _V = new Date();
+long = (_V.getTimezoneOffset() / -4) % 180;
+
+_V = localStorage.getItem('last.longitude');
+if (_V * 1){
+	long = _V * 1; 
+}
+_V = localStorage.getItem('last.latitude');
+if (_V * 1){
+	lat = _V * 1; 
+}
+_V = localStorage.getItem('last.altitude');
+if (_V * 1){
+	alt = _V * 1; 
+}
+console.log(long,lat,alt);
+
 function calcSunRiseSet(date,pos){
 	if (!date) date = new Date();
 	if (!pos) pos = coords;
 	var n = Math.floor((date.getTime() - TTDATE.getTime())/86400000);
 	n += 0.0008;
 	
-	var long = 0, lat = 0, alt = 0;
 	if (pos && pos.longitude) {
-		long = pos.longitude;		
+		long = pos.longitude;
+		localStorage.setItem('last.longitude',long);
 	}
 	if (pos && pos.latitude) {
 		lat = pos.latitude;
-		//lat = -70;
+		localStorage.setItem('last.latitude',lat);
 	}
 	if (pos && pos.altitude) {
 		alt = pos.altitude;
+		localStorage.setItem('last.altitude',alt);
 	}
 	
 	var loRad = long * DEG2RAD;
