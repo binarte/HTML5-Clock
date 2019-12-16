@@ -27,11 +27,15 @@ var LUNARPHASES = [
 	'🌘'	
 ];
 
+var DEG2RAD = Math.PI / 180;
+
 var EINC = (23.44 * Math.PI) / 180;
 var EINCSIN = Math.sin(EINC);
 
 var ST = (-0.83 * Math.PI) / 180;
 var STSIN = Math.sin(ST);
+
+var ALT_ACONV = 2.076 / 60;
 
 var ST_DAYNIGHT = 0;
 var ST_DAY  = 1;
@@ -107,8 +111,8 @@ function calcSunRiseSet(date,pos){
 		alt = pos.altitude;
 	}
 	
-	var loRad = (long * Math.PI) / 180;
-	var laRad = (lat * Math.PI) / 180;
+	var loRad = long * DEG2RAD;
+	var laRad = lat * DEG2RAD;
 	
 	var J = n - (long / 360);
 	var M = (357.5281 + (0.98560028 * J)) % 360;
@@ -120,7 +124,9 @@ function calcSunRiseSet(date,pos){
 	var sinT = Math.sin(Lrad) * EINCSIN;
 	var Trad = Math.asin(sinT);
 	
-	var cosW = (STSIN - (Math.sin(laRad) * sinT) ) / (Math.cos(laRad) * Math.cos(Trad) );
+	var altA = (-0.83 - (ALT_ACONV * Math.sqrt(alt)) ) * DEG2RAD;
+	
+	var cosW = (Math.sin(altA) - (Math.sin(laRad) * sinT) ) / (Math.cos(laRad) * Math.cos(Trad) );
 	if (cosW > 1) {
 		return {
 			'state' : ST_NIGHT
@@ -130,8 +136,7 @@ function calcSunRiseSet(date,pos){
 			'state' : ST_DAY
 		}
 	}
-	var W = (Math.acos(cosW) * 180) / Math.PI;
-	
+	var W = (Math.acos(cosW) * 180) / Math.PI;	
 	
 	var Jrise = Jt - (W / 360);
 	var Jset = Jt + (W / 360);
@@ -142,8 +147,7 @@ function calcSunRiseSet(date,pos){
 	var Drise = new Date();
 	var Dset = new Date();
 	Drise.setTime(TSrise);
-	Dset.setTime(TSset);
-	
+	Dset.setTime(TSset);	
 	
 	return {
 		"state": ST_DAYNIGHT,

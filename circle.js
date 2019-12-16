@@ -526,6 +526,10 @@ for (var i = 0; i < 20; i+=2){
 	}
 }
 
+function switchFullScreenn(){
+	console.log(window.parent.lol);
+}
+
 if (mode == MODE_SWATCH){
 	hourDisplay.style.display = 'none';
 } else {
