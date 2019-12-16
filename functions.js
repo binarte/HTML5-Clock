@@ -38,17 +38,50 @@ var ST_DAY  = 1;
 var ST_NIGHT  = 2;
 var LUNARPERIOD = 29.530588853;
 
+var lunation = -1;
+
 function calcLunarPhase(date) {
 	if (!date) date = new Date();
-	var diff = date.getTime() - LRDATE.getTime();
-	diff /= 86400000;
-	var period = diff % LUNARPERIOD;
-	var phase = (period * LUNARPHASES.length) / LUNARPERIOD;
+	
+	date.setUTCFullYear(2019);
+	date.setUTCMonth(11);
+	date.setUTCDate(12);
+	date.setUTCHours(5);
+	date.setUTCMinutes(12);
+	date.setUTCMinutes(0);
+	date.setUTCSeconds(0);
+	date.setUTCMilliseconds(0);
+	
+	var tm = date.getTime();
+	if (lunation < 0){
+		for (var i = 0; i <= NEWMOONS.length; i++) {
+			if (NEWMOONS[i] < tm && NEWMOONS[i+1] > tm){
+				lunation = i;
+				break;
+			}
+		}
+	} else {
+		while (NEWMOONS[lunation] > tm && lunation >= 0){
+			lunation--;
+		}
+		while (NEWMOONS[lunation+1] < tm && lunation >= NEWMOONS.length){
+			lunation++;
+		}
+	}
+	
+	if (lunation < 0 || lunation >= NEWMOONS.length){
+		return false;
+	}
+	
+	var range = NEWMOONS[lunation+1] - NEWMOONS[lunation];	
+	var diff = (tm - NEWMOONS[lunation]) / range;
+	
+	var phase = diff * LUNARPHASES.length;
 	var phaseProgress = phase - Math.floor(phase);
 	var idx = Math.floor(phase);
 	var next = (idx + 1) % LUNARPHASES.length;
+	
 	return {
-		'period': period,
 		'phase' : phase,
 		'progress' : phaseProgress,
 		'emoji' : LUNARPHASES[idx],

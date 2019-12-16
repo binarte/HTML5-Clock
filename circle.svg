@@ -81,6 +81,7 @@
 <circle cx="50" cy="50" r="20" id="dayClick" fill="rgba(0,0,0,0)" onclick="switchDay();"/>
 
 
+   <script type="application/ecmascript" xlink:href="newmoons.js"></script>
    <script type="application/ecmascript" xlink:href="functions.js"></script>
    <script type="application/ecmascript" xlink:href="weekDay.lang.js"></script>
   <script type="application/ecmascript" xlink:href="circle.js"></script>
